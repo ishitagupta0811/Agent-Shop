@@ -21,4 +21,4 @@ The hackathon requires every money action to be explainable (every recommendatio
 
 The merchant sees a dashboard showing total revenue, how much extra revenue the AI generated vs organic purchases, recommendation conversion rates, dead stock recovery stats, and the full audit trail. The merchant can toggle features on/off and set limits on what the agent can do.
 
-Tech stack: Python, FastAPI, SQLite, Anthropic Claude API (claude-sonnet-4-6) with tool-use, LangGraph, Streamlit for both buyer UI and merchant dashboard, Razorpay Python SDK in test mode. Product catalog uploaded as CSV with product relationships (which products are upgrades of which, which go well together).
+Tech stack used here: Python, FastAPI, SQLite, Anthropic Claude API (claude-sonnet-4-6) with tool-use, LangGraph, Streamlit for both buyer UI and merchant dashboard, Razorpay Python SDK in test mode. Product catalog uploaded as CSV with product relationships (which products are upgrades of which, which go well together).
