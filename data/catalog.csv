@@ -1,0 +1,16 @@
+name,description,price,category,stock,units_sold,margin_percent,is_premium,upsell_for,cross_sell_with
+Basic White Tee,Comfortable everyday cotton tee in classic white. Breathable fabric and relaxed fit.,399,tees,50,120,40,false,,Blue Slim Jeans;White Sneakers
+Premium White Tee,Egyptian cotton tee with reinforced stitching. Softer finish and lasts 3x longer.,699,tees,30,45,35,true,Basic White Tee,Blue Slim Jeans;White Sneakers
+Classic Black Tee,Essential crew neck black tee. Pre-shrunk cotton with double-stitched hem.,449,tees,55,110,42,false,,Cargo Joggers;White Sneakers
+Black Hoodie,Warm fleece-lined pullover hoodie. Ribbed cuffs and adjustable drawstring hood.,899,hoodies,40,85,38,false,,Blue Slim Jeans;White Sneakers
+Premium Zip Hoodie,Heavyweight zip-up hoodie with premium fleece lining. YKK zipper and kangaroo pockets.,1299,hoodies,20,30,30,true,Black Hoodie,Blue Slim Jeans;Premium Leather Sneakers
+Blue Slim Jeans,Classic slim fit blue denim jeans. Stretch denim with 5-pocket styling.,1299,bottoms,35,95,42,false,,White Sneakers;Denim Jacket;Basic White Tee
+Cargo Joggers,Relaxed fit cargo joggers with side pockets. Elastic waistband and tapered leg.,999,bottoms,80,15,40,false,,Classic Black Tee;Running Shoes;Sport Sandals
+Track Pants,Lightweight athletic track pants with zip ankles. Moisture-wicking fabric.,699,bottoms,90,12,44,false,,Running Shoes;Basic White Tee;Sport Sandals
+Denim Jacket,Classic rugged denim jacket with button closure. Washed finish with chest pockets.,2499,jackets,18,40,30,false,,Blue Slim Jeans;Basic White Tee;White Sneakers
+Premium Leather Jacket,Genuine leather biker jacket with quilted lining. Asymmetric zip and snap collar.,3499,jackets,10,8,25,true,Denim Jacket,Blue Slim Jeans;Premium White Tee
+White Sneakers,Clean minimal casual sneakers for everyday wear. Cushioned insole and rubber outsole.,1999,shoes,25,70,35,false,,Blue Slim Jeans;Black Hoodie;Cargo Joggers
+Premium Leather Sneakers,Handcrafted full-grain leather sneakers. Hand-stitched with memory foam insole.,2799,shoes,15,18,28,true,White Sneakers,Blue Slim Jeans;Premium Zip Hoodie
+Running Shoes,Lightweight breathable running shoes with cushioned sole. Mesh upper for ventilation.,2499,shoes,30,55,36,false,,Track Pants;Cargo Joggers
+Formal Black Shoes,Polished leather oxford shoes for office and events. Leather sole with heel cushion.,2999,shoes,20,35,32,false,,Blue Slim Jeans;Denim Jacket
+Sport Sandals,Comfortable everyday sport sandals with grip sole. Adjustable straps and arch support.,799,shoes,70,10,45,false,,Track Pants;Cargo Joggers
