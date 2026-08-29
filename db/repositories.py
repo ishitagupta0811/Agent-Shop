@@ -263,6 +263,7 @@ class CartRepository:
                 INSERT INTO carts (session_id, status, created_at, updated_at)
                 VALUES (?, 'active', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
                 ON CONFLICT(session_id) DO UPDATE SET
+                    status = 'active',
                     updated_at = CURRENT_TIMESTAMP
             """, (session_id,))
             cursor.execute("SELECT * FROM carts WHERE session_id = ?", (session_id,))
