@@ -16,8 +16,15 @@ def seed_catalog() -> None:
     # 1. Initialize DB tables
     init_db()
     
-    # 2. Ensure default merchant config is populated
-    MerchantConfigRepository.get_config()
+    # 2. Ensure default merchant config is populated & reset for seed
+    MerchantConfigRepository.update_config({
+        "upsell_enabled": True,
+        "cross_sell_enabled": True,
+        "bundle_enabled": True,
+        "dead_stock_enabled": True,
+        "max_discount_percentage": 15.0,
+        "require_approval": False
+    })
 
     csv_path = settings.CATALOG_CSV_PATH
     if not csv_path.exists():
