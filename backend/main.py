@@ -1,6 +1,6 @@
-"""
+﻿"""
 AgentShop FastAPI Backend — Main Application Entry Point
-Phase 2: FastAPI Backend Engine & Razorpay Payment Integration
+Phase 2 & 3: FastAPI Backend Engine, Razorpay Integration & LangGraph Agent Engine
 """
 
 import logging
@@ -15,6 +15,7 @@ from backend.routes.cart import router as cart_router
 from backend.routes.orders import router as orders_router
 from backend.routes.payments import router as payments_router
 from backend.routes.merchant import router as merchant_router
+from backend.routes.agent import router as agent_router
 
 logging.basicConfig(
     level=getattr(logging, settings.LOG_LEVEL.upper(), logging.INFO),
@@ -55,6 +56,7 @@ app.include_router(cart_router, prefix="/api", tags=["Cart"])
 app.include_router(orders_router, prefix="/api", tags=["Orders"])
 app.include_router(payments_router, prefix="/api", tags=["Payments"])
 app.include_router(merchant_router, prefix="/api", tags=["Merchant Config"])
+app.include_router(agent_router, prefix="/api", tags=["Agent Recommendations"])
 
 
 @app.get("/", tags=["Health"])
