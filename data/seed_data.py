@@ -52,6 +52,8 @@ def seed_catalog() -> None:
         margin = float(item.get("margin_percent", 40.0))
         is_premium = item.get("is_premium", "").lower() in ("true", "1", "yes")
 
+        image_url = item.get("image_url", "").strip()
+
         # Insert product into SQLite
         product_id = ProductRepository.insert_product(
             name=name,
@@ -59,7 +61,8 @@ def seed_catalog() -> None:
             price=price,
             category=category,
             margin_percent=margin,
-            is_premium=is_premium
+            is_premium=is_premium,
+            image_url=image_url
         )
         product_name_to_id[name] = product_id
 

@@ -49,19 +49,20 @@ class ProductRepository:
             return dict(row) if row else None
 
     @staticmethod
-    def insert_product(name: str, description: str, price: float, category: str, margin_percent: float, is_premium: bool) -> int:
+    def insert_product(name: str, description: str, price: float, category: str, margin_percent: float, is_premium: bool, image_url: str = "") -> int:
         with get_db_connection() as conn:
             cursor = conn.cursor()
             cursor.execute("""
-                INSERT INTO products (name, description, price, category, margin_percent, is_premium)
-                VALUES (?, ?, ?, ?, ?, ?)
+                INSERT INTO products (name, description, price, category, margin_percent, is_premium, image_url)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
                 ON CONFLICT(name) DO UPDATE SET
                     description=excluded.description,
                     price=excluded.price,
                     category=excluded.category,
                     margin_percent=excluded.margin_percent,
-                    is_premium=excluded.is_premium
-            """, (name, description, price, category, margin_percent, is_premium))
+                    is_premium=excluded.is_premium,
+                    image_url=excluded.image_url
+            """, (name, description, price, category, margin_percent, is_premium, image_url))
             
             cursor.execute("SELECT id FROM products WHERE LOWER(name) = LOWER(?)", (name.strip(),))
             return cursor.fetchone()["id"]
