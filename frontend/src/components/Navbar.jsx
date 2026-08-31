@@ -1,7 +1,7 @@
 import React from 'react';
-import { ShoppingBag, ShoppingCart, LayoutDashboard, Store } from 'lucide-react';
+import { ShoppingBag, ShoppingCart } from 'lucide-react';
 
-export default function Navbar({ activeView, setActiveView, selectedCategory, setSelectedCategory, cartCount, cartTotal, setIsCartOpen }) {
+export default function Navbar({ isMerchant = false, selectedCategory, setSelectedCategory, cartCount = 0, cartTotal = 0, setIsCartOpen }) {
   const categories = ['All', 'tshirts', 'hoodies', 'bottoms', 'jackets', 'shoes'];
 
   return (
@@ -9,25 +9,12 @@ export default function Navbar({ activeView, setActiveView, selectedCategory, se
       <div className="container navbar-inner">
         <div className="brand-logo">
           <ShoppingBag size={28} style={{ color: '#38BDF8' }} />
-          <span>UrbanDrop</span>
+          <span>
+            {isMerchant ? 'UrbanDrop — Merchant Portal' : 'UrbanDrop'}
+          </span>
         </div>
 
-        <div className="view-switcher">
-          <button
-            className={`view-btn ${activeView === 'buyer' ? 'active' : ''}`}
-            onClick={() => setActiveView('buyer')}
-          >
-            <Store size={16} /> Buyer Storefront
-          </button>
-          <button
-            className={`view-btn ${activeView === 'merchant' ? 'active' : ''}`}
-            onClick={() => setActiveView('merchant')}
-          >
-            <LayoutDashboard size={16} /> Merchant Dashboard
-          </button>
-        </div>
-
-        {activeView === 'buyer' && (
+        {!isMerchant && setIsCartOpen && (
           <button 
             className="btn btn-primary"
             onClick={() => setIsCartOpen(true)}
@@ -39,7 +26,7 @@ export default function Navbar({ activeView, setActiveView, selectedCategory, se
         )}
       </div>
 
-      {activeView === 'buyer' && (
+      {!isMerchant && selectedCategory && (
         <div className="container">
           <div className="category-bar">
             {categories.map((cat) => (
