@@ -11,23 +11,24 @@ def test_buyer_app_product_filtering():
     all_products = ProductRepository.get_all_products()
     assert len(all_products) >= 15
     
-    tees = [p for p in all_products if p["category"].lower() == "tees"]
-    assert len(tees) >= 3
+    tshirts = [p for p in all_products if p["category"].lower() == "tshirts"]
+    assert len(tshirts) >= 3
     
     shoes = [p for p in all_products if p["category"].lower() == "shoes"]
     assert len(shoes) >= 4
 
 def test_buyer_app_cart_operations():
     """Verify buyer app cart integration."""
-    session_id = "test_buyer_session_999"
+    import uuid
+    session_id = f"test_buyer_session_{uuid.uuid4().hex[:6]}"
     
     # 1. Cart is initially empty
     summary = CartRepository.get_cart_summary(session_id)
     assert summary["total_items"] == 0
     
     # 2. Add product
-    basic_tee = ProductRepository.get_product_by_name("Basic White Tee")
-    CartRepository.add_item(session_id, basic_tee["id"], quantity=2)
+    basic_tshirt = ProductRepository.get_product_by_name("Basic White T-Shirt")
+    CartRepository.add_item(session_id, basic_tshirt["id"], quantity=2)
     
     summary2 = CartRepository.get_cart_summary(session_id)
     assert summary2["total_items"] == 2

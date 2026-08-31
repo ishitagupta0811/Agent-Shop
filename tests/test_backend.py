@@ -37,14 +37,14 @@ def test_catalog_endpoints():
     assert "cross_sells" in resp_prod.json()
 
     # 3. Search product by name
-    resp_search = client.get("/api/products/search/Basic%20White%20Tee")
+    resp_search = client.get("/api/products/search/Basic%20White%20T-Shirt")
     assert resp_search.status_code == 200
-    assert resp_search.json()["name"] == "Basic White Tee"
+    assert resp_search.json()["name"] == "Basic White T-Shirt"
 
     # 4. List categories
     resp_cat = client.get("/api/categories")
     assert resp_cat.status_code == 200
-    assert "tees" in resp_cat.json()["categories"]
+    assert "tshirts" in resp_cat.json()["categories"]
 
     # 5. List dead stock
     resp_dead = client.get("/api/dead-stock")

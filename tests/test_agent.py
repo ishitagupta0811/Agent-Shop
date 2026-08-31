@@ -15,17 +15,17 @@ def setup_db():
 
 def test_upsell_recommendation_graph():
     session_id = f"test_session_upsell_{uuid.uuid4().hex[:6]}"
-    basic_tee = ProductRepository.get_product_by_name("Basic White Tee")
+    basic_tshirt = ProductRepository.get_product_by_name("Basic White T-Shirt")
     
     payload = run_agent_recommendation(
         session_id=session_id,
         buyer_action="VIEW_PRODUCT",
-        product_id=basic_tee["id"]
+        product_id=basic_tshirt["id"]
     )
     
     assert "recommendation_id" in payload
     assert payload["strategy"] == "UPSELL"
-    assert payload["target_product"]["name"] == "Premium White Tee"
+    assert payload["target_product"]["name"] == "Premium White T-Shirt"
     assert payload["status"] == "SHOWN"
     assert len(payload["explanation"]) > 0
 
@@ -45,7 +45,7 @@ def test_cross_sell_recommendation_graph():
 
 def test_guardrail_disabled_upsell_fallback():
     session_id = f"test_session_disabled_{uuid.uuid4().hex[:6]}"
-    basic_tee = ProductRepository.get_product_by_name("Basic White Tee")
+    basic_tshirt = ProductRepository.get_product_by_name("Basic White T-Shirt")
     
     # Disable upsell in merchant config
     MerchantConfigRepository.update_config({"upsell_enabled": False})
@@ -53,7 +53,7 @@ def test_guardrail_disabled_upsell_fallback():
     payload = run_agent_recommendation(
         session_id=session_id,
         buyer_action="VIEW_PRODUCT",
-        product_id=basic_tee["id"]
+        product_id=basic_tshirt["id"]
     )
     
     # Should fall back to CROSS_SELL or DEAD_STOCK_PUSH
@@ -61,12 +61,12 @@ def test_guardrail_disabled_upsell_fallback():
 
 def test_agent_api_recommend():
     session_id = f"api_rec_{uuid.uuid4().hex[:6]}"
-    basic_tee = ProductRepository.get_product_by_name("Basic White Tee")
+    basic_tshirt = ProductRepository.get_product_by_name("Basic White T-Shirt")
     
     resp = client.post("/api/agent/recommend", json={
         "session_id": session_id,
         "buyer_action": "VIEW_PRODUCT",
-        "product_id": basic_tee["id"]
+        "product_id": basic_tshirt["id"]
     })
     
     assert resp.status_code == 200
@@ -76,13 +76,13 @@ def test_agent_api_recommend():
 
 def test_agent_api_accept_recommendation():
     session_id = f"api_accept_{uuid.uuid4().hex[:6]}"
-    basic_tee = ProductRepository.get_product_by_name("Basic White Tee")
+    basic_tshirt = ProductRepository.get_product_by_name("Basic White T-Shirt")
     
     # 1. Get recommendation
     resp_rec = client.post("/api/agent/recommend", json={
         "session_id": session_id,
         "buyer_action": "VIEW_PRODUCT",
-        "product_id": basic_tee["id"]
+        "product_id": basic_tshirt["id"]
     })
     assert resp_rec.status_code == 200
     rec_id = resp_rec.json()["recommendation_id"]
@@ -103,13 +103,13 @@ def test_agent_api_accept_recommendation():
 
 def test_agent_api_reject_recommendation():
     session_id = f"api_reject_{uuid.uuid4().hex[:6]}"
-    basic_tee = ProductRepository.get_product_by_name("Basic White Tee")
+    basic_tshirt = ProductRepository.get_product_by_name("Basic White T-Shirt")
     
     # 1. Get recommendation
     resp_rec = client.post("/api/agent/recommend", json={
         "session_id": session_id,
         "buyer_action": "VIEW_PRODUCT",
-        "product_id": basic_tee["id"]
+        "product_id": basic_tshirt["id"]
     })
     assert resp_rec.status_code == 200
     rec_id = resp_rec.json()["recommendation_id"]

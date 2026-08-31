@@ -29,21 +29,21 @@ def test_product_ingestion():
     products = ProductRepository.get_all_products()
     assert len(products) >= 15
     
-    basic_tee = ProductRepository.get_product_by_name("Basic White Tee")
-    assert basic_tee is not None
-    assert basic_tee["price"] == 399.0
-    assert basic_tee["category"] == "tees"
-    assert basic_tee["is_premium"] == 0
+    basic_tshirt = ProductRepository.get_product_by_name("Basic White T-Shirt")
+    assert basic_tshirt is not None
+    assert basic_tshirt["price"] == 399.0
+    assert basic_tshirt["category"] == "tshirts"
+    assert basic_tshirt["is_premium"] == 0
 
 def test_upsell_relationships():
-    """Verify upsell graph mapping: Basic White Tee -> Premium White Tee."""
-    basic_tee = ProductRepository.get_product_by_name("Basic White Tee")
-    assert basic_tee is not None
+    """Verify upsell graph mapping: Basic White T-Shirt -> Premium White T-Shirt."""
+    basic_tshirt = ProductRepository.get_product_by_name("Basic White T-Shirt")
+    assert basic_tshirt is not None
     
-    upsell_item = RelationshipRepository.get_upsell(basic_tee["id"])
+    upsell_item = RelationshipRepository.get_upsell(basic_tshirt["id"])
     assert upsell_item is not None
-    assert upsell_item["name"] == "Premium White Tee"
-    assert upsell_item["price"] > basic_tee["price"]
+    assert upsell_item["name"] == "Premium White T-Shirt"
+    assert upsell_item["price"] > basic_tshirt["price"]
 
 def test_cross_sell_relationships():
     """Verify cross-sell graph mappings for Blue Slim Jeans."""
@@ -83,11 +83,11 @@ def test_cart_repository_operations():
     assert cart["status"] == "active"
     
     # 2. Get Products
-    basic_tee = ProductRepository.get_product_by_name("Basic White Tee")
+    basic_tshirt = ProductRepository.get_product_by_name("Basic White T-Shirt")
     jeans = ProductRepository.get_product_by_name("Blue Slim Jeans")
     
     # 3. Add Items
-    summary1 = CartRepository.add_item(session_id, basic_tee["id"], quantity=2)
+    summary1 = CartRepository.add_item(session_id, basic_tshirt["id"], quantity=2)
     assert summary1["total_items"] == 2
     assert summary1["total_amount"] == 2 * 399.0
     
@@ -104,7 +104,7 @@ def test_cart_repository_operations():
     assert rec_item["recommendation_type"] == "cross_sell"
     
     # 4. Update Quantity
-    updated = CartRepository.update_quantity(session_id, basic_tee["id"], quantity=5)
+    updated = CartRepository.update_quantity(session_id, basic_tshirt["id"], quantity=5)
     assert updated is True
     summary3 = CartRepository.get_cart_summary(session_id)
     assert summary3["total_items"] == 6
