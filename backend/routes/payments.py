@@ -82,6 +82,18 @@ def verify_payment(body: VerifyPaymentRequest):
             "UPDATE orders SET status = ?, razorpay_payment_id = ? WHERE id = ?",
             (new_status, body.razorpay_payment_id, order["id"])
         )
+        if signature_valid:
+            cursor = conn.cursor()
+            cursor.execute("SELECT product_id, quantity FROM order_items WHERE order_id = ?", (order["id"],))
+            items = cursor.fetchall()
+            for item in items:
+                cursor.execute("""
+                    UPDATE inventory
+                    SET stock_quantity = MAX(0, stock_quantity - ?),
+                        units_sold = units_sold + ?,
+                        updated_at = CURRENT_TIMESTAMP
+                    WHERE product_id = ?
+                """, (item["quantity"], item["quantity"], item["product_id"]))
 
     # 4. Log audit event
     AuditLogRepository.create_log(AuditLogCreate(

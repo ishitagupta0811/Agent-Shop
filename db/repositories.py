@@ -85,6 +85,18 @@ class InventoryRepository:
             """, (product_id, stock_quantity, units_sold, velocity_score, is_dead_stock))
 
     @staticmethod
+    def reduce_stock(product_id: int, quantity: int) -> None:
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("""
+                UPDATE inventory
+                SET stock_quantity = MAX(0, stock_quantity - ?),
+                    units_sold = units_sold + ?,
+                    updated_at = CURRENT_TIMESTAMP
+                WHERE product_id = ?
+            """, (quantity, quantity, product_id))
+
+    @staticmethod
     def get_dead_stock_items() -> List[Dict[str, Any]]:
         with get_db_connection() as conn:
             cursor = conn.cursor()
@@ -217,19 +229,43 @@ class AuditLogRepository:
         with get_db_connection() as conn:
             cursor = conn.cursor()
             
-            # Total orders & AI-driven revenue
+            # 1. Paid order revenue
             cursor.execute("""
                 SELECT 
-                    COALESCE(SUM(final_amount), 0.0) as total_revenue,
-                    COALESCE(SUM(CASE WHEN is_ai_driven = 1 THEN final_amount ELSE 0.0 END), 0.0) as ai_revenue,
-                    COUNT(id) as total_orders,
-                    COALESCE(SUM(CASE WHEN is_ai_driven = 1 THEN 1 ELSE 0 END), 0) as ai_orders
+                    COALESCE(SUM(final_amount), 0.0) as paid_revenue,
+                    COALESCE(SUM(CASE WHEN is_ai_driven = 1 THEN final_amount ELSE 0.0 END), 0.0) as paid_ai_revenue,
+                    COUNT(id) as total_orders
                 FROM orders
                 WHERE status = 'PAID'
             """)
             order_stats = dict(cursor.fetchone())
 
-            # Recommendation conversion stats
+            # 2. Active cart totals & live cart AI revenue
+            cursor.execute("""
+                SELECT 
+                    COALESCE(SUM(ci.quantity * p.price), 0.0) as cart_revenue,
+                    COALESCE(SUM(CASE WHEN ci.was_recommended = 1 THEN (ci.quantity * p.price) ELSE 0.0 END), 0.0) as cart_ai_revenue,
+                    COALESCE(SUM(CASE WHEN i.is_dead_stock = 1 THEN ci.quantity ELSE 0 END), 0) as cart_dead_stock_units
+                FROM cart_items ci
+                JOIN products p ON ci.product_id = p.id
+                LEFT JOIN inventory i ON p.id = i.product_id
+                JOIN carts c ON ci.cart_id = c.id
+                WHERE c.status = 'active'
+            """)
+            cart_stats = dict(cursor.fetchone())
+
+            # 3. Dead stock in paid orders
+            cursor.execute("""
+                SELECT COALESCE(SUM(oi.quantity), 0) as paid_dead_stock_units
+                FROM order_items oi
+                JOIN orders o ON oi.order_id = o.id
+                JOIN inventory i ON oi.product_id = i.product_id
+                WHERE o.status = 'PAID' AND i.is_dead_stock = 1
+            """)
+            paid_dead_stock_row = cursor.fetchone()
+            paid_dead_stock = paid_dead_stock_row[0] if paid_dead_stock_row and paid_dead_stock_row[0] else 0
+
+            # 4. Recommendation conversion stats
             cursor.execute("""
                 SELECT 
                     COUNT(*) as total_recommendations,
@@ -239,19 +275,26 @@ class AuditLogRepository:
             """)
             rec_stats = dict(cursor.fetchone())
 
+            total_revenue = round(order_stats["paid_revenue"] + cart_stats["cart_revenue"], 2)
+            extra_ai_revenue = round(order_stats["paid_ai_revenue"] + cart_stats["cart_ai_revenue"], 2)
+            dead_stock_units_moved = cart_stats["cart_dead_stock_units"] + paid_dead_stock
+
             total_recs = rec_stats["total_recommendations"]
             accepted_recs = rec_stats["accepted_recommendations"]
             conversion_rate = (accepted_recs / total_recs * 100.0) if total_recs > 0 else 0.0
+            ai_lift_percent = (extra_ai_revenue / total_revenue * 100.0) if total_revenue > 0 else 0.0
 
             return {
-                "total_revenue": order_stats["total_revenue"],
-                "ai_revenue": order_stats["ai_revenue"],
-                "organic_revenue": order_stats["total_revenue"] - order_stats["ai_revenue"],
-                "ai_revenue_lift_percent": ((order_stats["ai_revenue"] / order_stats["total_revenue"] * 100.0) if order_stats["total_revenue"] > 0 else 0.0),
+                "total_revenue": total_revenue,
+                "ai_revenue": extra_ai_revenue,
+                "extra_ai_revenue": extra_ai_revenue,
+                "organic_revenue": round(total_revenue - extra_ai_revenue, 2),
+                "ai_revenue_lift_percent": round(ai_lift_percent, 1),
                 "total_orders": order_stats["total_orders"],
                 "total_recommendations": total_recs,
                 "accepted_recommendations": accepted_recs,
-                "conversion_rate_percent": round(conversion_rate, 2)
+                "conversion_rate_percent": round(conversion_rate, 1),
+                "dead_stock_units_moved": dead_stock_units_moved
             }
 
 

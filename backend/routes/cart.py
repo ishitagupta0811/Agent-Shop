@@ -7,7 +7,8 @@ from fastapi import APIRouter, HTTPException, Header
 from pydantic import BaseModel, Field
 from typing import Optional
 
-from db.repositories import CartRepository, ProductRepository
+from db.repositories import CartRepository, ProductRepository, AuditLogRepository
+from db.models import AuditLogCreate
 
 router = APIRouter()
 
@@ -60,6 +61,16 @@ def add_to_cart(
         was_recommended=body.was_recommended,
         recommendation_type=body.recommendation_type
     )
+    AuditLogRepository.create_log(AuditLogCreate(
+        session_id=session_id,
+        event_type="CART_ADD",
+        strategy_used=(body.recommendation_type or "ORGANIC").upper(),
+        target_product_id=body.product_id,
+        discount_applied=0.0,
+        explanation_text=f"Added {body.quantity}x '{product['name']}' to cart",
+        status="ACCEPTED" if body.was_recommended else "ORGANIC",
+        revenue_impact=product['price'] * body.quantity
+    ))
     return summary
 
 
@@ -87,6 +98,16 @@ def remove_from_cart(
     removed = CartRepository.remove_item(session_id, product_id)
     if not removed:
         raise HTTPException(status_code=404, detail="Item not found in cart")
+    AuditLogRepository.create_log(AuditLogCreate(
+        session_id=session_id,
+        event_type="CART_REMOVE",
+        strategy_used="ORGANIC",
+        target_product_id=product_id,
+        discount_applied=0.0,
+        explanation_text=f"Removed product #{product_id} from cart",
+        status="REJECTED",
+        revenue_impact=0.0
+    ))
     return CartRepository.get_cart_summary(session_id)
 
 
