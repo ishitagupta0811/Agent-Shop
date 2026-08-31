@@ -2,7 +2,7 @@ import csv
 import logging
 from pathlib import Path
 from config.settings import settings
-from db.database import init_db
+from db.database import init_db, get_db_connection
 from db.repositories import ProductRepository, InventoryRepository, RelationshipRepository, MerchantConfigRepository
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
@@ -13,8 +13,20 @@ def seed_catalog() -> None:
     Parses catalog.csv, initializes SQLite database schema, inserts products,
     calculates inventory velocity & dead stock flags, and builds the relationship graph.
     """
-    # 1. Initialize DB tables
+    # 1. Initialize DB tables & clear old records
     init_db()
+    
+    with get_db_connection() as conn:
+        conn.execute("PRAGMA foreign_keys = OFF;")
+        conn.execute("DELETE FROM order_items;")
+        conn.execute("DELETE FROM orders;")
+        conn.execute("DELETE FROM cart_items;")
+        conn.execute("DELETE FROM carts;")
+        conn.execute("DELETE FROM product_relationships;")
+        conn.execute("DELETE FROM inventory;")
+        conn.execute("DELETE FROM products;"); conn.execute("DELETE FROM sqlite_sequence;")
+        conn.execute("PRAGMA foreign_keys = ON;")
+
     
     # 2. Ensure default merchant config is populated & reset for seed
     MerchantConfigRepository.update_config({
