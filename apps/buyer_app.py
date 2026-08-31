@@ -367,12 +367,12 @@ with col_logo:
 with col_cart:
     st.write("")
     cart_button_label = f"🛒 Cart ({cart_item_count}) — ₹{cart_total_amount:,.2f}"
-    if st.button(cart_button_label, use_container_width=True, type="primary"):
+    if st.button(cart_button_label, width='stretch', type="primary"):
         st.session_state.active_view = "cart"
         st.rerun()
 
 # Category Navigation Bar
-categories = ["All", "tees", "hoodies", "bottoms", "jackets", "shoes"]
+categories = ["All", "tshirts", "hoodies", "bottoms", "jackets", "shoes"]
 selected_cat = st.radio(
     "Category Filter",
     options=categories,
@@ -419,21 +419,21 @@ if st.session_state.active_view == "catalog":
                         badge_html += '<span class="badge-category badge-deadstock">🔥 SPECIAL DEAL</span> '
                     badge_html += f'<span class="badge-category">{p["category"]}</span>'
 
+                    if p.get("image_url"):
+                        st.image(p["image_url"], width='stretch')
+                    
                     st.markdown(f"""
-                        <div class="product-card">
-                            <img src="{img_url}" class="product-image" alt="{p['name']}"/>
-                            <div>
-                                {badge_html}
-                                <div class="product-title">{p['name']}</div>
-                                <div style="color: #94A3B8; font-size: 0.85rem; height: 38px; overflow: hidden;">{p.get('description', '')}</div>
-                                <div class="product-price">₹{p['price']:,.2f}</div>
-                            </div>
+                        <div>
+                            {badge_html}
+                            <div class="product-title">{p['name']}</div>
+                            <div style="color: #94A3B8; font-size: 0.85rem; height: 38px; overflow: hidden;">{p.get('description', '')}</div>
+                            <div class="product-price">₹{p['price']:,.2f}</div>
                         </div>
                     """, unsafe_allow_html=True)
                     
                     btn_col1, btn_col2 = st.columns(2)
                     with btn_col1:
-                        if st.button("View Details", key=f"details_{p['id']}", use_container_width=True):
+                        if st.button("View Details", key=f"details_{p['id']}", width='stretch'):
                             st.session_state.selected_product_id = p["id"]
                             st.session_state.active_view = "product_detail"
                             # Trigger AI recommendation for viewing item
@@ -441,7 +441,7 @@ if st.session_state.active_view == "catalog":
                             st.rerun()
 
                     with btn_col2:
-                        if st.button("Quick Add", key=f"quick_{p['id']}", use_container_width=True, type="secondary"):
+                        if st.button("Quick Add", key=f"quick_{p['id']}", width='stretch', type="secondary"):
                             add_to_cart_api(p["id"], quantity=1)
                             # Trigger AI recommendation for adding to cart
                             trigger_agent_recommendation("ADD_TO_CART", p["id"])
@@ -471,7 +471,7 @@ elif st.session_state.active_view == "product_detail":
         
         with detail_col1:
             img_url = product.get("image_url") or "https://via.placeholder.com/400x300?text=UrbanDrop"
-            st.image(img_url, use_column_width=True)
+            st.image(img_url, width='stretch')
             
         with detail_col2:
             st.title(product["name"])
@@ -491,7 +491,7 @@ elif st.session_state.active_view == "product_detail":
 
             qty = st.number_input("Quantity", min_value=1, max_value=max(1, stock_qty), value=1)
             
-            if st.button("🛒 Add to Cart", type="primary", use_container_width=True, disabled=(stock_qty <= 0)):
+            if st.button("🛒 Add to Cart", type="primary", width='stretch', disabled=(stock_qty <= 0)):
                 add_to_cart_api(product["id"], quantity=qty)
                 trigger_agent_recommendation("ADD_TO_CART", product["id"])
                 st.toast(f"Added {qty}x {product['name']} to cart!", icon="🛒")
@@ -567,7 +567,7 @@ elif st.session_state.active_view == "cart":
             st.write("")
             
             # Razorpay Test Checkout Trigger
-            if st.button("💳 Proceed to Razorpay Test Checkout", type="primary", use_container_width=True):
+            if st.button("💳 Proceed to Razorpay Test Checkout", type="primary", width='stretch'):
                 # Create Order via Backend
                 order_res = create_order_api(discount_amount=0.0, is_ai_driven=any(i.get("was_recommended") for i in items))
                 if order_res and order_res.get("razorpay_order_id"):
@@ -601,7 +601,7 @@ elif st.session_state.active_view == "checkout_payment":
     col_pay, col_cancel = st.columns(2)
     
     with col_pay:
-        if st.button("✅ Complete Test Payment (Simulate Success)", type="primary", use_container_width=True):
+        if st.button("✅ Complete Test Payment (Simulate Success)", type="primary", width='stretch'):
             # Verify payment with backend
             mock_payment_id = f"pay_test_{uuid.uuid4().hex[:8]}"
             mock_signature = "test_mode_valid_signature"
@@ -616,7 +616,7 @@ elif st.session_state.active_view == "checkout_payment":
                 st.error("Payment verification failed.")
 
     with col_cancel:
-        if st.button("❌ Cancel Payment", use_container_width=True):
+        if st.button("❌ Cancel Payment", width='stretch'):
             st.session_state.active_view = "cart"
             st.rerun()
 
@@ -664,33 +664,58 @@ with st.sidebar:
         badge_text = f"✨ {strategy.replace('_', ' ')}"
         st.markdown(f'<div class="ai-badge">{badge_text}</div>', unsafe_allow_html=True)
         
-        st.subheader(target_prod.get("name", "Recommended Item"))
-        
-        img_url = target_prod.get("image_url") or "https://via.placeholder.com/200x150"
-        st.image(img_url, use_column_width=True)
-        
-        st.markdown(f'<div class="ai-quote">"{explanation}"</div>', unsafe_allow_html=True)
-        
         if strategy == "UPSELL":
-            st.write(f"Price: **₹{rec.get('final_price', 0.0):,.2f}**")
-        elif strategy in ("SMART_BUNDLE", "DEAD_STOCK_PUSH", "CART_ABANDONMENT"):
-            st.write(f"Original Total: ~₹{rec.get('original_price', 0.0):,.2f}~")
-            st.write(f"Special Offer Price: **₹{rec.get('final_price', 0.0):,.2f}**")
-            st.success(f"You Save: ₹{rec.get('savings_amount', 0.0):,.2f} ({rec.get('discount_applied', 0.0)}% OFF)")
+            curr_prod_id = st.session_state.get("selected_product_id") or 1
+            curr_prod = ProductRepository.get_product_by_id(curr_prod_id)
+            
+            st.markdown("#### 🚀 Upgrade Comparison")
+            if curr_prod:
+                up_col1, up_arrow, up_col2 = st.columns([4, 2, 4])
+                with up_col1:
+                    st.caption("Current Item")
+                    if curr_prod.get("image_url"):
+                        st.image(curr_prod["image_url"], width='stretch')
+                    st.markdown(f"**{curr_prod['name']}**")
+                    st.caption(f"₹{curr_prod['price']:,.2f}")
+                with up_arrow:
+                    st.markdown("<br><h3 style='text-align: center; color: #38BDF8;'>➔</h3>", unsafe_allow_html=True)
+                    price_diff = round(target_prod.get('price', 0.0) - curr_prod['price'], 2)
+                    st.markdown(f"<div style='text-align: center; color: #10B981; font-weight: 700; font-size: 0.8rem;'>+₹{price_diff:,.0f}</div>", unsafe_allow_html=True)
+                with up_col2:
+                    st.caption("Upgrade Choice")
+                    if target_prod.get("image_url"):
+                        st.image(target_prod["image_url"], width='stretch')
+                    st.markdown(f"**{target_prod.get('name', '')}**")
+                    st.caption(f"₹{target_prod.get('price', 0.0):,.2f}")
+        else:
+            rec_img_col, rec_txt_col = st.columns([4, 6])
+            with rec_img_col:
+                img_url = target_prod.get("image_url") or "https://via.placeholder.com/200x150"
+                st.image(img_url, width='stretch')
+            with rec_txt_col:
+                st.markdown(f"**{target_prod.get('name', 'Recommended Item')}**")
+                if strategy in ("SMART_BUNDLE", "DEAD_STOCK_PUSH", "CART_ABANDONMENT"):
+                    st.markdown(f"~~₹{rec.get('original_price', 0.0):,.2f}~~")
+                    st.markdown(f"**₹{rec.get('final_price', 0.0):,.2f}**")
+                    st.success(f"Save ₹{rec.get('savings_amount', 0.0):,.2f}")
+                else:
+                    st.write(f"Price: **₹{rec.get('final_price', target_prod.get('price', 0.0)):,.2f}**")
+
+        st.markdown(f'<div class="ai-quote">"{explanation}"</div>', unsafe_allow_html=True)
 
         st.markdown('</div>', unsafe_allow_html=True)
         st.write("")
         
         col_acc, col_rej = st.columns(2)
         with col_acc:
-            if st.button("✅ Accept", key="accept_ai_rec", type="primary", use_container_width=True):
+            if st.button("✅ Accept", key="accept_ai_rec", type="primary", width='stretch'):
                 accept_recommendation_api(rec_id)
                 st.toast("Accepted AI Recommendation! Item added to cart.", icon="✨")
                 st.session_state.active_view = "cart"
                 st.rerun()
 
         with col_rej:
-            if st.button("❌ Decline", key="reject_ai_rec", use_container_width=True):
+            if st.button("❌ Decline", key="reject_ai_rec", width='stretch'):
                 reject_recommendation_api(rec_id)
                 st.toast("Declined recommendation.")
                 st.rerun()
