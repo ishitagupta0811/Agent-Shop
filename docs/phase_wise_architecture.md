@@ -256,10 +256,10 @@ The development of **AgentShop** is structured into 6 sequential phases to ensur
 
 ---
 
-### Phase 4: Buyer E-Commerce Experience (Streamlit Web App)
-**Goal:** Build a visually stunning, responsive Streamlit web application for online buyers with an embedded AI assistant.
+### Phase 4: Buyer E-Commerce Experience (React Web App)
+**Goal:** Build a visually stunning, highly responsive React (Vite) web application for online buyers with an embedded AI assistant.
 
-#### UI Components & Features (`apps/buyer_app.py`):
+#### UI Components & Features (`frontend/ (React Buyer App)`):
 - **Header & Category Filter Bar**: Modern typography, UrbanDrop brand header, cart badge counter.
 - **Product Grid View**: Clean product cards displaying images, price, stock status, and "View Details" / "Add to Cart" buttons.
 - **Interactive AI Shopping Assistant Sidebar / Floating Drawer**:
@@ -275,10 +275,10 @@ The development of **AgentShop** is structured into 6 sequential phases to ensur
 
 ---
 
-### Phase 5: Merchant Analytics Dashboard & Feature Controls
-**Goal:** Build the Streamlit Merchant Portal for real-time monitoring of AI-generated revenue, feature gating, discount controls, dead stock movement, and audit logs.
+### Phase 5: Merchant Analytics Dashboard & Feature Controls (React Portal)
+**Goal:** Build the React Merchant Portal for real-time monitoring of AI-generated revenue, feature gating, discount controls, dead stock movement, and audit logs.
 
-#### UI Views & Features (`apps/merchant_dashboard.py`):
+#### UI Views & Features (`frontend/src/components/merchant/ (React Merchant Dashboard)`):
 - **Executive KPI Header**:
   - Total Store Revenue (₹)
   - Extra AI-Driven Revenue (₹) & % Revenue Lift
