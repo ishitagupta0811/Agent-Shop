@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import ProductGrid from '../components/buyer/ProductGrid';
 import ProductDetailModal from '../components/buyer/ProductDetailModal';
-import AIAssistantDrawer from '../components/buyer/AIAssistantDrawer';
-import CartDrawer from '../components/buyer/CartDrawer';
-import RazorpayCheckoutModal from '../components/buyer/RazorpayCheckoutModal';
 import { api } from '../api';
 
 export default function BuyerStorefront() {
+  const navigate = useNavigate();
   const broadcastSync = () => {
     try {
       const channel = new BroadcastChannel('agentshop_sync');
@@ -17,14 +16,29 @@ export default function BuyerStorefront() {
   };
 
   const [selectedCategory, setSelectedCategory] = useState('All');
-  
+  const [searchQuery, setSearchQuery] = useState('');
   const [products, setProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
-  const [cart, setCart] = useState({ items: [], total_items: 0, total_amount: 0 });
   
-  const [isCartOpen, setIsCartOpen] = useState(false);
+  // Shopping Bag State & Wishlist State
+  const [cart, setCart] = useState({ items: [], total_items: 0, total_amount: 0 });
+  const [wishlist, setWishlist] = useState(() => {
+    try {
+      const saved = localStorage.getItem('agentshop_wishlist');
+      return saved ? JSON.parse(saved) : [];
+    } catch (e) {
+      return [];
+    }
+  });
+
   const [recommendation, setRecommendation] = useState(null);
-  const [checkoutOrder, setCheckoutOrder] = useState(null);
+
+  // Save wishlist to localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem('agentshop_wishlist', JSON.stringify(wishlist));
+    } catch (e) {}
+  }, [wishlist]);
 
   // Load products & cart on mount / category change
   useEffect(() => {
@@ -50,8 +64,21 @@ export default function BuyerStorefront() {
     }
   };
 
+  // Toggle wishlist item
+  const handleToggleWishlist = (product) => {
+    setWishlist((prev) => {
+      const exists = prev.some((p) => p.id === product.id);
+      if (exists) {
+        return prev.filter((p) => p.id !== product.id);
+      } else {
+        return [...prev, product];
+      }
+    });
+  };
+
   const handleViewDetails = async (product) => {
     setSelectedProduct(product);
+    setRecommendation(null);
     try {
       const rec = await api.getRecommendation('VIEW_PRODUCT', product.id);
       if (rec && rec.recommendation_id) {
@@ -68,10 +95,7 @@ export default function BuyerStorefront() {
       await loadCart();
       await loadProducts(selectedCategory);
       broadcastSync();
-      const rec = await api.getRecommendation('ADD_TO_CART', product.id);
-      if (rec && rec.recommendation_id) {
-        setRecommendation(rec);
-      }
+      // Stay on page so buyer continues shopping!
     } catch (err) {
       console.error('Failed to quick add:', err);
     }
@@ -83,24 +107,25 @@ export default function BuyerStorefront() {
       await loadCart();
       await loadProducts(selectedCategory);
       broadcastSync();
-      const rec = await api.getRecommendation('ADD_TO_CART', productId);
-      if (rec && rec.recommendation_id) {
-        setRecommendation(rec);
-      }
+      setSelectedProduct(null);
+      // Stay on page so buyer continues shopping!
     } catch (err) {
       console.error('Failed to add from modal:', err);
     }
   };
 
-  const handleAcceptRecommendation = async (recId) => {
+  const handleAcceptRecommendation = async (recId, currentProductId) => {
     try {
+      if (currentProductId) {
+        await api.addToCart(currentProductId, 1);
+      }
       await api.acceptRecommendation(recId);
       setRecommendation(null);
-      broadcastSync();
+      setSelectedProduct(null);
       await loadCart();
       await loadProducts(selectedCategory);
       broadcastSync();
-      setIsCartOpen(true);
+      // Stay on page so buyer continues shopping!
     } catch (err) {
       console.error('Failed to accept recommendation:', err);
     }
@@ -116,26 +141,7 @@ export default function BuyerStorefront() {
     }
   };
 
-  const handleProceedCheckout = async () => {
-    try {
-      const isAiDriven = cart.items.some(i => i.was_recommended);
-      const res = await api.createOrder(0, isAiDriven);
-      if (res && res.razorpay_order_id) {
-        setCheckoutOrder(res);
-        setIsCartOpen(false);
-      }
-    } catch (err) {
-      console.error('Failed to create order:', err);
-    }
-  };
-
-  const handleVerifyPayment = async (orderId, paymentId, signature) => {
-    const res = await api.verifyPayment(orderId, paymentId, signature);
-    await loadCart();
-    await loadProducts(selectedCategory);
-    broadcastSync();
-    return res;
-  };
+  const wishlistIds = wishlist.map((p) => p.id);
 
   return (
     <div>
@@ -143,9 +149,11 @@ export default function BuyerStorefront() {
         isMerchant={false}
         selectedCategory={selectedCategory}
         setSelectedCategory={setSelectedCategory}
+        wishlistCount={wishlist.length}
         cartCount={cart.total_items}
         cartTotal={cart.total_amount}
-        setIsCartOpen={setIsCartOpen}
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
       />
 
       <main className="container" style={{ paddingTop: '1rem', paddingBottom: '3rem' }}>
@@ -153,9 +161,15 @@ export default function BuyerStorefront() {
           Explore UrbanDrop Collection
         </h2>
         <ProductGrid 
-          products={products}
+          products={products.filter(p => 
+            p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            (p.category && p.category.toLowerCase().includes(searchQuery.toLowerCase())) ||
+            (p.description && p.description.toLowerCase().includes(searchQuery.toLowerCase()))
+          )}
           onViewDetails={handleViewDetails}
           onQuickAdd={handleQuickAdd}
+          wishlistIds={wishlistIds}
+          onToggleWishlist={handleToggleWishlist}
         />
       </main>
 
@@ -163,28 +177,10 @@ export default function BuyerStorefront() {
         product={selectedProduct}
         onClose={() => setSelectedProduct(null)}
         onAddToCart={handleAddToCartModal}
-      />
-
-      <AIAssistantDrawer 
         recommendation={recommendation}
-        currentProduct={selectedProduct}
-        onAccept={handleAcceptRecommendation}
-        onReject={handleRejectRecommendation}
-      />
-
-      <CartDrawer 
-        isOpen={isCartOpen}
-        onClose={() => setIsCartOpen(false)}
-        cart={cart}
-        onUpdateQuantity={async (pid, q) => { await api.updateCartQuantity(pid, q); loadCart(); loadProducts(selectedCategory); }}
-        onRemoveItem={async (pid) => { await api.removeFromCart(pid); loadCart(); loadProducts(selectedCategory); }}
-        onProceedCheckout={handleProceedCheckout}
-      />
-
-      <RazorpayCheckoutModal 
-        order={checkoutOrder}
-        onClose={() => setCheckoutOrder(null)}
-        onVerifyPayment={handleVerifyPayment}
+        onAcceptRecommendation={handleAcceptRecommendation}
+        onRejectRecommendation={handleRejectRecommendation}
+        onSelectProduct={(item) => handleViewDetails(item)}
       />
     </div>
   );
