@@ -188,7 +188,7 @@ def generate_explanation_node(state: AgentState) -> AgentState:
         "source_price": curr_prod["price"] if curr_prod else 0.0,
         "target_product_name": candidate.get("name", "Item"),
         "target_price": candidate.get("price", 0.0),
-        "price_delta": state.get("savings_amount", 0.0) if strategy == "UPSELL" else round(candidate.get("price", 0.0) - (curr_prod["price"] if curr_prod else 0.0), 2),
+        "price_delta": round(candidate.get("price", 0.0) - (curr_prod["price"] if curr_prod else 0.0), 2) if strategy == "UPSELL" else state.get("savings_amount", 0.0),
         "bundle_item_names": ", ".join([p["name"] for p in state.get("bundle_products", [candidate])]),
         "original_total": state.get("original_price", 0.0),
         "final_total": state.get("final_price", 0.0),
