@@ -1,14 +1,14 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ShoppingBag, Heart, Search } from 'lucide-react';
+import { Zap, ShoppingBag, Heart, Search } from 'lucide-react';
 
-export default function Navbar({ 
-  isMerchant = false, 
-  selectedCategory, 
-  setSelectedCategory, 
+export default function Navbar({
+  isMerchant = false,
+  selectedCategory,
+  setSelectedCategory,
   wishlistCount = 0,
-  cartCount = 0, 
-  cartTotal = 0, 
+  cartCount = 0,
+  cartTotal = 0,
   searchQuery = '',
   setSearchQuery
 }) {
@@ -24,10 +24,10 @@ export default function Navbar({
     <header className="navbar">
       <div className="container navbar-inner">
         <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', flex: 1 }}>
-          <div className="brand-logo" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
+          <div className="brand-logo" onClick={() => navigate('/')} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px' }}>
             <ShoppingBag size={28} style={{ color: '#FF3E6C' }} />
-            <span>
-              {isMerchant ? 'UrbanDrop — Merchant Portal' : 'UrbanDrop'}
+            <span className="brand-title">
+              {isMerchant ? 'UrbanDrop - Merchant Portal' : 'UrbanDrop'}
             </span>
           </div>
 
@@ -48,7 +48,7 @@ export default function Navbar({
         {!isMerchant && (
           <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
             {/* Wishlist Route Button */}
-            <button 
+            <button
               className="btn btn-secondary"
               onClick={() => navigate('/wishlist')}
               style={{ whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: '6px' }}
@@ -62,7 +62,7 @@ export default function Navbar({
             </button>
 
             {/* Shopping Bag Route Button */}
-            <button 
+            <button
               className="btn btn-primary"
               onClick={() => navigate('/bag')}
               style={{ whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: '6px' }}

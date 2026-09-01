@@ -22,7 +22,7 @@ export default function ProductDetailModal({
   const scrollToAiRec = () => {
     const el = document.getElementById('ai-recommendation-section');
     if (el) {
-      el.scrollIntoView({ behavior: 'smooth' });
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   };
 
