@@ -1735,3 +1735,29 @@ body {
 .toast-close-btn:hover {
   color: #FFFFFF;
 }
+
+
+/* Purple/Blue Gradient Lightning Bolt Brand Logo */
+.bolt-logo-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  background: linear-gradient(135deg, #7C3AED 0%, #3B82F6 100%);
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 14px rgba(124, 58, 237, 0.35);
+  transition: transform 0.2s ease;
+}
+
+.brand-logo:hover .bolt-logo-icon {
+  transform: scale(1.08) rotate(-4deg);
+}
+
+.brand-title {
+  font-size: 1.5rem;
+  font-weight: 900;
+  letter-spacing: -0.5px;
+  color: #0F172A;
+}
