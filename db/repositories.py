@@ -336,6 +336,7 @@ class CartRepository:
                     p.name as product_name,
                     p.category,
                     p.price,
+                    p.image_url,
                     ci.quantity,
                     (p.price * ci.quantity) as subtotal,
                     ci.was_recommended,
