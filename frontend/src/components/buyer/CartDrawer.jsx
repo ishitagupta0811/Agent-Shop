@@ -1,30 +1,36 @@
 import React from 'react';
-import { ShoppingBag, X, Trash2, CreditCard, Sparkles } from 'lucide-react';
+import { ShoppingBag, X, Trash2, CreditCard, Tag } from 'lucide-react';
 
 export default function CartDrawer({ isOpen, onClose, cart, onUpdateQuantity, onRemoveItem, onProceedCheckout }) {
   if (!isOpen) return null;
 
   const items = cart.items || [];
-  const totalAmount = cart.total_amount || 0;
+  const subtotal = cart.total_amount || 0;
   const totalItems = cart.total_items || 0;
+  const platformFee = items.length > 0 ? 23 : 0;
+  const totalMRP = Math.round(subtotal * 1.5);
+  const discountOnMRP = totalMRP - subtotal;
+  const finalTotal = subtotal + platformFee;
 
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div 
-        className="modal-content" 
+        className="modal-content cart-drawer-content" 
         onClick={(e) => e.stopPropagation()}
-        style={{ maxWidth: '500px', height: '100vh', borderRadius: 0, position: 'fixed', right: 0, top: 0, margin: 0, display: 'flex', flexDirection: 'column' }}
+        style={{ maxWidth: '520px', height: '100vh', borderRadius: 0, position: 'fixed', right: 0, top: 0, margin: 0, display: 'flex', flexDirection: 'column' }}
       >
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', borderBottom: '1px solid #334155', paddingBottom: '1rem' }}>
-          <h2 style={{ fontSize: '1.25rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <ShoppingBag size={20} style={{ color: '#38BDF8' }} /> Your Shopping Cart ({totalItems})
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', borderBottom: '1px solid #F1E5DE', paddingBottom: '1rem' }}>
+          <h2 style={{ fontSize: '1.25rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#0F172A' }}>
+            <ShoppingBag size={22} style={{ color: '#FF3E6C' }} /> Shopping Bag ({totalItems} items)
           </h2>
           <button className="close-btn" onClick={onClose} style={{ position: 'static' }}><X size={20} /></button>
         </div>
 
         {items.length === 0 ? (
-          <div style={{ textAlignment: 'center', padding: '4rem 0', color: '#94A3B8', flex: 1 }}>
-            Your cart is currently empty.
+          <div style={{ textAlign: 'center', padding: '4rem 1rem', color: '#64748B', flex: 1, fontWeight: 600 }}>
+            <ShoppingBag size={48} style={{ color: '#FFC4A4', marginBottom: '1rem' }} />
+            <div>Your Shopping Bag is empty.</div>
+            <div style={{ fontSize: '0.82rem', color: '#94A3B8', marginTop: '0.4rem' }}>Add items to your bag to proceed with purchase!</div>
           </div>
         ) : (
           <div style={{ flex: 1, overflowY: 'auto', paddingRight: '0.5rem' }}>
@@ -35,24 +41,24 @@ export default function CartDrawer({ isOpen, onClose, cart, onUpdateQuantity, on
                   display: 'flex', 
                   gap: '0.75rem', 
                   alignItems: 'center', 
-                  padding: '0.75rem 0', 
-                  borderBottom: '1px solid #1E293B' 
+                  padding: '0.85rem 0', 
+                  borderBottom: '1px solid #F1E5DE' 
                 }}
               >
                 <img 
                   src={item.image_url || 'https://via.placeholder.com/70'} 
                   alt={item.product_name} 
-                  style={{ width: '60px', height: '60px', borderRadius: '8px', objectFit: 'cover' }}
+                  style={{ width: '65px', height: '65px', borderRadius: '8px', objectFit: 'cover' }}
                 />
                 
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontWeight: 700, fontSize: '0.9rem' }}>{item.product_name}</div>
+                  <div style={{ fontWeight: 700, fontSize: '0.9rem', color: '#0F172A' }}>{item.product_name}</div>
                   {item.was_recommended && (
                     <span className="badge badge-premium" style={{ fontSize: '0.65rem', margin: '2px 0' }}>
                       ✨ AI Recommended
                     </span>
                   )}
-                  <div style={{ color: '#38BDF8', fontSize: '0.85rem', fontWeight: 700 }}>
+                  <div style={{ color: '#FF6F43', fontSize: '0.85rem', fontWeight: 800, marginTop: '2px' }}>
                     ₹{item.price.toLocaleString('en-IN')}
                   </div>
                 </div>
@@ -68,9 +74,9 @@ export default function CartDrawer({ isOpen, onClose, cart, onUpdateQuantity, on
                       width: '50px',
                       padding: '0.3rem',
                       borderRadius: '4px',
-                      backgroundColor: '#0F172A',
-                      border: '1px solid #334155',
-                      color: '#FFFFFF',
+                      backgroundColor: '#FFFFFF',
+                      border: '1px solid #CBD5E1',
+                      color: '#0F172A',
                       textAlign: 'center',
                     }}
                   />
@@ -83,30 +89,45 @@ export default function CartDrawer({ isOpen, onClose, cart, onUpdateQuantity, on
                 </div>
               </div>
             ))}
+
+            {/* Myntra Price Details Summary */}
+            <div style={{ marginTop: '1.25rem', background: '#F8FAFC', padding: '1rem', borderRadius: '10px', border: '1px solid #E2E8F0' }}>
+              <div style={{ fontSize: '0.85rem', fontWeight: 800, color: '#0F172A', marginBottom: '0.75rem', letterSpacing: '0.5px' }}>
+                PRICE DETAILS ({totalItems} {totalItems === 1 ? 'Item' : 'Items'})
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.4rem', fontSize: '0.82rem', color: '#475569' }}>
+                <span>Total MRP</span>
+                <span>₹{totalMRP.toLocaleString('en-IN')}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.4rem', fontSize: '0.82rem', color: '#10B981', fontWeight: 600 }}>
+                <span>Discount on MRP</span>
+                <span>-₹{discountOnMRP.toLocaleString('en-IN')}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.4rem', fontSize: '0.82rem', color: '#475569' }}>
+                <span>Platform Fee</span>
+                <span>₹{platformFee}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.4rem', fontSize: '0.82rem', color: '#10B981', fontWeight: 600 }}>
+                <span>Shipping Fee</span>
+                <span>FREE</span>
+              </div>
+              <div style={{ height: '1px', background: '#CBD5E1', margin: '0.5rem 0' }} />
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1.05rem', fontWeight: 900, color: '#0F172A' }}>
+                <span>Total Amount</span>
+                <span style={{ color: '#FF3E6C' }}>₹{finalTotal.toLocaleString('en-IN')}</span>
+              </div>
+            </div>
           </div>
         )}
 
         {items.length > 0 && (
-          <div style={{ borderTop: '1px solid #334155', paddingTop: '1rem', marginTop: 'auto' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', color: '#94A3B8', fontSize: '0.9rem' }}>
-              <span>Subtotal:</span>
-              <span>₹{totalAmount.toLocaleString('en-IN')}</span>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', color: '#94A3B8', fontSize: '0.9rem' }}>
-              <span>Shipping:</span>
-              <span style={{ color: '#10B981' }}>FREE</span>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem', fontSize: '1.2rem', fontWeight: 800 }}>
-              <span>Total:</span>
-              <span style={{ color: '#38BDF8' }}>₹{totalAmount.toLocaleString('en-IN')}</span>
-            </div>
-
+          <div style={{ borderTop: '1px solid #F1E5DE', paddingTop: '1rem', marginTop: 'auto' }}>
             <button
-              className="btn btn-primary"
-              style={{ width: '100%', padding: '0.85rem', fontSize: '0.95rem' }}
+              className="btn btn-coral-large"
+              style={{ width: '100%', padding: '0.9rem', fontSize: '1rem' }}
               onClick={onProceedCheckout}
             >
-              <CreditCard size={18} /> Proceed to Razorpay Test Checkout
+              <CreditCard size={18} /> PLACE ORDER (₹{finalTotal.toLocaleString('en-IN')})
             </button>
           </div>
         )}
