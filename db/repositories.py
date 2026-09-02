@@ -219,6 +219,7 @@ class AuditLogRepository:
                 SELECT a.*, p.name as target_product_name
                 FROM audit_logs a
                 LEFT JOIN products p ON a.target_product_id = p.id
+
                 WHERE a.session_id NOT LIKE 'backend_%' AND a.session_id NOT LIKE 'test_%'
                 ORDER BY a.timestamp DESC
                 LIMIT ?
@@ -234,12 +235,22 @@ class AuditLogRepository:
             cursor.execute("""
                 SELECT 
                     COALESCE(SUM(final_amount), 0.0) as paid_revenue,
-                    COALESCE(SUM(CASE WHEN is_ai_driven = 1 THEN final_amount ELSE 0.0 END), 0.0) as paid_ai_revenue,
                     COUNT(id) as total_orders
                 FROM orders
                 WHERE status = 'PAID'
             """)
             order_stats = dict(cursor.fetchone())
+
+            # 1b. Paid AI revenue summed from order_items where is_ai_driven is true
+            cursor.execute("""
+                SELECT 
+                    COALESCE(SUM(oi.quantity * oi.price_at_purchase), 0.0) as paid_ai_revenue
+                FROM order_items oi
+                JOIN orders o ON oi.order_id = o.id
+                WHERE o.status = 'PAID' AND (oi.is_ai_driven = 1 OR oi.is_ai_driven IS TRUE)
+            """)
+            paid_ai_row = cursor.fetchone()
+            paid_ai_revenue = float(paid_ai_row[0]) if paid_ai_row and paid_ai_row[0] else 0.0
 
             # 2. Active cart totals & live cart AI revenue
             cursor.execute("""
@@ -282,7 +293,7 @@ class AuditLogRepository:
             rec_stats = dict(cursor.fetchone())
 
             total_revenue = round(order_stats["paid_revenue"] + cart_stats["cart_revenue"], 2)
-            extra_ai_revenue = round(order_stats["paid_ai_revenue"] + cart_stats["cart_ai_revenue"], 2)
+            extra_ai_revenue = round(paid_ai_revenue + cart_stats["cart_ai_revenue"], 2)
             dead_stock_units_moved = cart_stats["cart_dead_stock_units"] + paid_dead_stock
 
             total_recs = rec_stats["total_recommendations"]

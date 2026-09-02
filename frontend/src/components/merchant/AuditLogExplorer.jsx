@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, FileText, CheckCircle, XCircle, Clock, Zap, ShoppingBag, Layers, Flame } from 'lucide-react';
+import { Search, FileText, CheckCircle, XCircle, Clock, Zap, ShoppingBag, Layers, Flame, Heart } from 'lucide-react';
 
 export default function AuditLogExplorer({ logs }) {
   const [searchTerm, setSearchTerm] = useState('');
