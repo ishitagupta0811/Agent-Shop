@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Sparkles, ShoppingBag, Heart, Truck, ShieldCheck, RotateCcw, Tag, ChevronRight, ChevronLeft } from 'lucide-react';
+import { CheckCircle2, X, Sparkles, ShoppingBag, Heart, Truck, ShieldCheck, RotateCcw, Tag, ChevronRight, ChevronLeft } from 'lucide-react';
 
 export default function ProductDetailModal({ 
   product, 
@@ -13,6 +13,20 @@ export default function ProductDetailModal({
   if (!product) return null;
 
   const [activePhotoIndex, setActivePhotoIndex] = useState(0);
+  const [addedSuccess, setAddedSuccess] = useState(false);
+
+  const handlePdpBagClick = async () => {
+    try {
+      await onAddToCart(product.id, 1);
+      setAddedSuccess(true);
+      setTimeout(() => setAddedSuccess(false), 2000);
+      if (activeRecId) {
+        onAcceptRecommendation(activeRecId, product.id);
+      }
+    } catch (err) {
+      console.error('Error adding to bag from modal:', err);
+    }
+  };
   const [selectedSize, setSelectedSize] = useState('M');
   const [pincode, setPincode] = useState('530045');
   const [isWishlisted, setIsWishlisted] = useState(false);
@@ -173,10 +187,24 @@ export default function ProductDetailModal({
             {/* Action Buttons */}
             <div className="pdp-action-buttons">
               <button 
-                className="btn btn-coral-large pdp-add-bag-btn"
-                onClick={() => onAddToCart(product.id, 1)}
+                className={`btn ${addedSuccess ? 'btn-success' : 'btn-coral-large'} pdp-add-bag-btn`}
+                onClick={handlePdpBagClick}
+                style={{
+                  transition: 'all 0.3s ease',
+                  backgroundColor: addedSuccess ? '#10B981' : undefined,
+                  borderColor: addedSuccess ? '#10B981' : undefined,
+                  color: '#FFFFFF'
+                }}
               >
-                <ShoppingBag size={20} /> ADD TO BAG
+                {addedSuccess ? (
+                  <>
+                    <CheckCircle2 size={20} /> ADDED TO BAG!
+                  </>
+                ) : (
+                  <>
+                    <ShoppingBag size={20} /> ADD TO BAG
+                  </>
+                )}
               </button>
 
               <button 
@@ -280,7 +308,7 @@ export default function ProductDetailModal({
                   <div 
                     className="compare-card highlight-card clickable-card"
                     style={{ cursor: 'pointer' }}
-                    onClick={() => onSelectProduct && onSelectProduct(targetProduct)}
+                    onClick={() => onSelectProduct && onSelectProduct(targetProduct, recommendation?.recommendation_id)}
                     title="Click to view full details"
                   >
                     <span className="compare-tag premium-tag">✨ Recommended Upgrade</span>
@@ -327,7 +355,7 @@ export default function ProductDetailModal({
                     <div 
                       key={item.id} 
                       className="cross-sell-card"
-                      onClick={() => onSelectProduct && onSelectProduct(item)}
+                      onClick={() => onSelectProduct && onSelectProduct(item, recommendation?.recommendation_id)}
                     >
                       <div className="cross-sell-img-wrap">
                         <img src={item.image_url} alt={item.name} className="cross-sell-img" />
@@ -355,7 +383,7 @@ export default function ProductDetailModal({
                 <button 
                   className="btn btn-coral-large" 
                   style={{ width: '100%', marginTop: '0.85rem' }}
-                  onClick={() => onAcceptRecommendation(recommendation.recommendation_id, product.id)}
+                  onClick={() => onAcceptRecommendation(recommendation.recommendation_id, product.id, true)}
                 >
                   Add all to cart as outfit — Save ₹{(recommendation.savings_amount || 150).toLocaleString('en-IN')}
                 </button>

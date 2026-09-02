@@ -108,7 +108,7 @@ def create_order(body: CreateOrderRequest):
         session_id=body.session_id,
         event_type="ORDER_CREATED",
         strategy_used="AI_DRIVEN" if is_ai_driven else "ORGANIC",
-        revenue_impact=final_amount,
+        revenue_impact=0.0,
         status="SHOWN",
         explanation_text=f"Order #{order_id} created with {len(cart_summary['items'])} items. Razorpay order: {razorpay_order_id}"
     ))

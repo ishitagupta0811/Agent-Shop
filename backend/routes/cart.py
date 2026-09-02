@@ -69,7 +69,7 @@ def add_to_cart(
         discount_applied=0.0,
         explanation_text=f"Added {body.quantity}x '{product['name']}' to cart",
         status="ACCEPTED" if body.was_recommended else "ORGANIC",
-        revenue_impact=product['price'] * body.quantity
+        revenue_impact=0.0
     ))
     return summary
 

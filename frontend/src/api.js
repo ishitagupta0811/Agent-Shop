@@ -88,11 +88,14 @@ export const api = {
     return res.json();
   },
 
-  async acceptRecommendation(recId) {
+  async acceptRecommendation(recId, productId = null) {
     const res = await fetch(API_BASE_URL + '/agent/recommend/' + recId + '/accept', {
       method: 'POST',
       headers: getHeaders(),
-      body: JSON.stringify({ session_id: getSessionId() }),
+      body: JSON.stringify({ 
+        session_id: getSessionId(),
+        product_id: productId
+      }),
     });
     if (!res.ok) throw new Error('Failed to accept recommendation');
     return res.json();
