@@ -33,4 +33,4 @@ def get_metrics():
 def get_audit_logs(limit: int = 100):
     """Get recent audit trail entries."""
     logs = AuditLogRepository.get_all_logs(limit=limit)
-    return {"logs": logs, "count": len(logs)}
+    return {"logs": logs, "audit_logs": logs, "count": len(logs)}

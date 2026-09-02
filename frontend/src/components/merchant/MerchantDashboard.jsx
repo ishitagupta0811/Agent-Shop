@@ -19,7 +19,7 @@ export default function MerchantDashboard() {
       ]);
       setMetrics(mRes);
       setConfig(cRes);
-      setLogs(lRes.audit_logs || []);
+      setLogs(lRes.logs || lRes.audit_logs || []);
     } catch (err) {
       console.error('Failed to load merchant dashboard data:', err);
     } finally {

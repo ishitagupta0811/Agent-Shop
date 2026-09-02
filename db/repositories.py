@@ -219,6 +219,7 @@ class AuditLogRepository:
                 SELECT a.*, p.name as target_product_name
                 FROM audit_logs a
                 LEFT JOIN products p ON a.target_product_id = p.id
+                WHERE a.session_id NOT LIKE 'backend_%' AND a.session_id NOT LIKE 'test_%'
                 ORDER BY a.timestamp DESC
                 LIMIT ?
             """, (limit,))
@@ -245,7 +246,12 @@ class AuditLogRepository:
                 SELECT 
                     COALESCE(SUM(ci.quantity * p.price), 0.0) as cart_revenue,
                     COALESCE(SUM(CASE WHEN ci.was_recommended = 1 THEN (ci.quantity * p.price) ELSE 0.0 END), 0.0) as cart_ai_revenue,
-                    COALESCE(SUM(CASE WHEN i.is_dead_stock = 1 THEN ci.quantity ELSE 0 END), 0) as cart_dead_stock_units
+                    COALESCE(SUM(CASE 
+                        WHEN ci.recommendation_type = 'WISHLIST_CONVERSION' 
+                             OR (i.is_dead_stock = 1 AND ci.was_recommended = 1) 
+                        THEN ci.quantity 
+                        ELSE 0 
+                    END), 0) as cart_dead_stock_units
                 FROM cart_items ci
                 JOIN products p ON ci.product_id = p.id
                 LEFT JOIN inventory i ON p.id = i.product_id
@@ -260,7 +266,7 @@ class AuditLogRepository:
                 FROM order_items oi
                 JOIN orders o ON oi.order_id = o.id
                 JOIN inventory i ON oi.product_id = i.product_id
-                WHERE o.status = 'PAID' AND i.is_dead_stock = 1
+                WHERE o.status = 'PAID' AND i.is_dead_stock = 1 AND o.is_ai_driven = 1
             """)
             paid_dead_stock_row = cursor.fetchone()
             paid_dead_stock = paid_dead_stock_row[0] if paid_dead_stock_row and paid_dead_stock_row[0] else 0

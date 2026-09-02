@@ -1,85 +1,122 @@
 import React, { useState } from 'react';
-import { Search, FileText } from 'lucide-react';
+import { Search, FileText, CheckCircle, XCircle, Clock, Zap, ShoppingBag, Layers, Flame } from 'lucide-react';
 
 export default function AuditLogExplorer({ logs }) {
   const [searchTerm, setSearchTerm] = useState('');
 
   if (!logs) return null;
 
-  const filteredLogs = logs.filter(log => 
+  const realLogs = logs.filter(log => 
+    !log.session_id.startsWith('backend_') && 
+    !log.session_id.startsWith('test_')
+  );
+
+  const filteredLogs = realLogs.filter(log => 
     (log.session_id || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
     (log.strategy_used || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
     (log.status || '').toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const getStrategyBadge = (strat) => {
+    switch (strat) {
+      case 'UPSELL':
+        return <span className="strat-badge strat-upsell"><Zap size={12} /> UPSELL</span>;
+      case 'CROSS_SELL':
+        return <span className="strat-badge strat-cross"><ShoppingBag size={12} /> CROSS-SELL</span>;
+      case 'SMART_BUNDLE':
+        return <span className="strat-badge strat-bundle"><Layers size={12} /> SMART BUNDLE</span>;
+      case 'DEAD_STOCK_PUSH':
+        return <span className="strat-badge strat-deadstock"><Flame size={12} /> DEAD STOCK</span>;
+      case 'WISHLIST_CONVERSION':
+        return <span className="strat-badge" style={{ background: '#FFF1F2', color: '#E11D48', borderColor: '#FFE4E6' }}><Heart size={12} /> WISHLIST</span>;
+      default:
+        return <span className="strat-badge strat-default">{strat || 'AI AGENT'}</span>;
+    }
+  };
+
+  const getStatusBadge = (status) => {
+    switch (status) {
+      case 'ACCEPTED':
+        return <span className="status-badge status-accepted"><CheckCircle size={12} /> Accepted</span>;
+      case 'REJECTED':
+        return <span className="status-badge status-rejected"><XCircle size={12} /> Declined</span>;
+      case 'EXPIRED':
+        return <span className="status-badge status-expired"><Clock size={12} /> Expired</span>;
+      default:
+        return <span className="status-badge status-default">{status || 'TRIGGERED'}</span>;
+    }
+  };
+
   return (
-    <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <FileText size={20} style={{ color: '#38BDF8' }} />
-          <h3 style={{ fontSize: '1.1rem', fontWeight: 700 }}>AI Agent Audit Log Explorer</h3>
+    <div className="merchant-audit-card">
+      <div className="audit-header-row">
+        <div className="audit-title-group">
+          <div className="audit-icon-wrap">
+            <FileText size={20} />
+          </div>
+          <div>
+            <h3 className="audit-title">AI Agent Audit Log Explorer</h3>
+            <p className="audit-subtitle">Transparent real-time ledger of every decision made by DropGenius AI</p>
+          </div>
         </div>
 
-        <div style={{ position: 'relative' }}>
+        <div className="audit-search-wrap">
+          <Search size={16} className="audit-search-icon" />
           <input 
             type="text"
             placeholder="Search by session, strategy, or status..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            style={{
-              padding: '0.5rem 1rem 0.5rem 2.2rem',
-              borderRadius: '8px',
-              backgroundColor: '#1E293B',
-              border: '1px solid #334155',
-              color: '#FFFFFF',
-              fontSize: '0.85rem',
-              width: '280px',
-            }}
+            className="audit-search-input"
           />
-          <Search size={14} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: '#94A3B8' }} />
         </div>
       </div>
 
-      <div className="table-wrap">
-        <table>
+      <div className="audit-table-wrap">
+        <table className="merchant-audit-table">
           <thead>
             <tr>
-              <th>ID</th>
-              <th>Timestamp</th>
-              <th>Session ID</th>
-              <th>Strategy</th>
-              <th>Discount</th>
-              <th>Status</th>
-              <th>Impact</th>
+              <th>LOG ID</th>
+              <th>TIMESTAMP</th>
+              <th>SESSION ID</th>
+              <th>AI STRATEGY</th>
+              <th>DISCOUNT OFFERED</th>
+              <th>STATUS</th>
+              <th>REVENUE IMPACT</th>
             </tr>
           </thead>
           <tbody>
             {filteredLogs.length === 0 ? (
               <tr>
-                <td colSpan="7" style={{ textAlign: 'center', color: '#94A3B8', padding: '2rem' }}>
-                  No audit log records found.
+                <td colSpan="7" className="empty-audit-cell">
+                  <div className="empty-audit-box">
+                    <FileText size={40} style={{ color: '#CBD5E1', marginBottom: '0.5rem' }} />
+                    <div style={{ fontWeight: 800, color: '#0F172A', fontSize: '1.05rem' }}>No Audit Logs Found</div>
+                    <p style={{ color: '#64748B', fontSize: '0.85rem', margin: '4px 0 0 0' }}>
+                      Audit records appear automatically as buyers interact with DropGenius AI recommendations.
+                    </p>
+                  </div>
                 </td>
               </tr>
             ) : (
               filteredLogs.map(log => (
                 <tr key={log.id}>
-                  <td>#{log.id}</td>
-                  <td style={{ color: '#94A3B8', fontSize: '0.8rem' }}>{log.timestamp ? log.timestamp.substring(11, 19) : 'N/A'}</td>
-                  <td><code>{log.session_id}</code></td>
-                  <td><span className="badge badge-category">{log.strategy_used}</span></td>
-                  <td style={{ color: '#10B981', fontWeight: 700 }}>{log.discount_offered}%</td>
+                  <td className="log-id-cell">#{log.id}</td>
+                  <td className="time-cell">
+                    {log.timestamp ? log.timestamp.substring(11, 19) : 'Just now'}
+                  </td>
                   <td>
-                    <span 
-                      className={`badge ${
-                        log.status === 'ACCEPTED' ? 'badge-premium' : 
-                        log.status === 'REJECTED' ? 'badge-deadstock' : 'badge-category'
-                      }`}
-                    >
-                      {log.status}
+                    <span className="session-code" title={log.session_id}>
+                      👤 {log.session_id && log.session_id.startsWith('session_') 
+                        ? 'Buyer #' + log.session_id.replace('session_', '') 
+                        : log.session_id}
                     </span>
                   </td>
-                  <td style={{ fontWeight: 700, color: log.revenue_impact > 0 ? '#10B981' : '#94A3B8' }}>
-                    +₹{log.revenue_impact}
+                  <td>{getStrategyBadge(log.strategy_used)}</td>
+                  <td className="discount-cell">{log.discount_applied ?? log.discount_offered ?? 0}%</td>
+                  <td>{getStatusBadge(log.status)}</td>
+                  <td className={`impact-cell ${log.revenue_impact > 0 ? 'positive' : 'neutral'}`}>
+                    {log.revenue_impact > 0 ? `+₹${log.revenue_impact.toLocaleString('en-IN')}` : '₹0'}
                   </td>
                 </tr>
               ))
