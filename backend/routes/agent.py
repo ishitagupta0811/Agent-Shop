@@ -21,6 +21,7 @@ class RecommendRequest(BaseModel):
 
 class ActionRequest(BaseModel):
     session_id: str
+    product_id: Optional[int] = None
 
 @router.post("/agent/recommend")
 def get_recommendation(body: RecommendRequest):
@@ -54,7 +55,7 @@ def accept_recommendation(rec_id: int, body: ActionRequest):
             raise HTTPException(status_code=404, detail=f"Recommendation audit log #{rec_id} not found.")
         log_dict = dict(log)
 
-    target_product_id = log_dict.get("target_product_id")
+    target_product_id = body.product_id or log_dict.get("target_product_id")
     if not target_product_id:
         raise HTTPException(status_code=400, detail="Recommendation log has no associated product.")
 
@@ -62,10 +63,8 @@ def accept_recommendation(rec_id: int, body: ActionRequest):
     if not product:
         raise HTTPException(status_code=404, detail=f"Target product #{target_product_id} not found.")
 
-    # Calculate revenue impact based on product price and applied discount
-    discount_pct = log_dict.get("discount_applied", 0.0)
-    original_price = product["price"]
-    revenue_impact = round(original_price * (1 - discount_pct / 100.0), 2)
+    # Actual product price on accept
+    revenue_impact = float(product["price"])
 
     # 1. Update Audit Log
     AuditLogRepository.update_log_status(log_id=rec_id, status="ACCEPTED", revenue_impact=revenue_impact)

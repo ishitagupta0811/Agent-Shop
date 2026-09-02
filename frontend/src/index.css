@@ -1761,3 +1761,515 @@ body {
   letter-spacing: -0.5px;
   color: #0F172A;
 }
+
+
+/* ==========================================
+   MERCHANT PORTAL REDESIGN STYLES
+   ========================================== */
+
+/* 1. KPI Grid */
+.merchant-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 1.25rem;
+  margin-bottom: 2rem;
+}
+
+.merchant-kpi-card {
+  background: #FFFFFF;
+  border-radius: 16px;
+  padding: 1.25rem 1.5rem;
+  border: 1px solid #F1E5DE;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.merchant-kpi-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);
+}
+
+.kpi-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.kpi-label {
+  font-size: 0.82rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #64748B;
+}
+
+.kpi-icon-wrap {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cyan-bg { background: rgba(14, 165, 233, 0.1); color: #0EA5E9; }
+.emerald-bg { background: rgba(16, 185, 129, 0.1); color: #10B981; }
+.indigo-bg { background: rgba(99, 102, 241, 0.1); color: #6366F1; }
+.amber-bg { background: rgba(245, 158, 11, 0.1); color: #F59E0B; }
+
+.kpi-main-val {
+  font-size: 1.75rem;
+  font-weight: 900;
+  color: #0F172A;
+  margin-bottom: 0.35rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.emerald-text { color: #10B981; }
+.indigo-text { color: #6366F1; }
+.amber-text { color: #D97706; }
+
+.kpi-badge {
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 9999px;
+}
+
+.emerald-badge { background: rgba(16, 185, 129, 0.15); color: #10B981; }
+
+.kpi-subtext {
+  font-size: 0.78rem;
+  color: #94A3B8;
+}
+
+/* 2. Merchant Guardrails Card */
+.merchant-guardrails-card {
+  background: #FFFFFF;
+  border-radius: 20px;
+  padding: 1.75rem 2rem;
+  border: 1px solid #F1E5DE;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.04);
+  margin-bottom: 2rem;
+}
+
+.guardrails-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.guardrails-title-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.guardrails-icon-wrap {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #7C3AED 0%, #3B82F6 100%);
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.guardrails-title {
+  font-size: 1.25rem;
+  font-weight: 900;
+  color: #0F172A;
+  margin: 0;
+}
+
+.guardrails-subtitle {
+  font-size: 0.85rem;
+  color: #64748B;
+  margin: 2px 0 0 0;
+}
+
+.security-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(16, 185, 129, 0.1);
+  color: #10B981;
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  padding: 6px 14px;
+  border-radius: 9999px;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+/* Strategy Toggle Cards Grid */
+.guardrail-toggles-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.25rem;
+  margin-bottom: 2rem;
+}
+
+.toggle-card {
+  background: #FAF6F2;
+  border: 1.5px solid #F1E5DE;
+  border-radius: 14px;
+  padding: 1.25rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.toggle-card:hover {
+  border-color: #CBD5E1;
+  transform: translateY(-2px);
+}
+
+.toggle-card.active {
+  background: #FFFFFF;
+  border-color: #38BDF8;
+  box-shadow: 0 4px 16px rgba(56, 189, 248, 0.12);
+}
+
+.toggle-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.85rem;
+}
+
+.toggle-card-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.toggle-card-icon.purple { background: rgba(139, 92, 246, 0.15); color: #8B5CF6; }
+.toggle-card-icon.cyan { background: rgba(14, 165, 233, 0.15); color: #0EA5E9; }
+.toggle-card-icon.emerald { background: rgba(16, 185, 129, 0.15); color: #10B981; }
+.toggle-card-icon.amber { background: rgba(245, 158, 11, 0.15); color: #F59E0B; }
+
+.toggle-card-title {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #0F172A;
+  margin-bottom: 4px;
+}
+
+.toggle-card-desc {
+  font-size: 0.78rem;
+  color: #64748B;
+  line-height: 1.35;
+}
+
+/* Custom CSS Toggle Switch */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #CBD5E1;
+  transition: .3s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: .3s;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+input:checked + .slider {
+  background-color: #10B981;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #10B981;
+}
+
+input:checked + .slider:before {
+  transform: translateX(20px);
+}
+
+.slider.round {
+  border-radius: 34px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+
+/* Discount Slider Section */
+.discount-slider-section {
+  background: #FAF6F2;
+  border-radius: 14px;
+  padding: 1.25rem 1.5rem;
+  border: 1px solid #F1E5DE;
+}
+
+.slider-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.85rem;
+}
+
+.slider-label {
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: #0F172A;
+}
+
+.slider-value-badge {
+  font-size: 0.82rem;
+  font-weight: 900;
+  color: #10B981;
+  background: rgba(16, 185, 129, 0.1);
+  padding: 4px 12px;
+  border-radius: 9999px;
+  border: 1px solid rgba(16, 185, 129, 0.25);
+}
+
+.custom-range-slider {
+  width: 100%;
+  height: 8px;
+  border-radius: 5px;
+  background: #E2E8F0;
+  outline: none;
+  accent-color: #10B981;
+  cursor: pointer;
+  margin-bottom: 0.85rem;
+}
+
+.slider-info-note {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  color: #64748B;
+}
+
+/* 3. Audit Log Explorer Card */
+.merchant-audit-card {
+  background: #FFFFFF;
+  border-radius: 20px;
+  padding: 1.75rem 2rem;
+  border: 1px solid #F1E5DE;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.04);
+}
+
+.audit-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.audit-title-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.audit-icon-wrap {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #0EA5E9 0%, #2563EB 100%);
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.audit-title {
+  font-size: 1.25rem;
+  font-weight: 900;
+  color: #0F172A;
+  margin: 0;
+}
+
+.audit-subtitle {
+  font-size: 0.85rem;
+  color: #64748B;
+  margin: 2px 0 0 0;
+}
+
+.audit-search-wrap {
+  position: relative;
+}
+
+.audit-search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94A3B8;
+}
+
+.audit-search-input {
+  padding: 8px 16px 8px 38px;
+  border-radius: 9999px;
+  border: 1.5px solid #CBD5E1;
+  background: #FAF6F2;
+  color: #0F172A;
+  font-size: 0.85rem;
+  font-weight: 600;
+  width: 290px;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.audit-search-input:focus {
+  border-color: #0EA5E9;
+  background: #FFFFFF;
+  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.15);
+}
+
+.audit-table-wrap {
+  overflow-x: auto;
+  border-radius: 14px;
+  border: 1px solid #F1E5DE;
+}
+
+.merchant-audit-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.85rem;
+}
+
+.merchant-audit-table th {
+  background: #FAF6F2;
+  color: #64748B;
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 12px 16px;
+  border-bottom: 1.5px solid #F1E5DE;
+}
+
+.merchant-audit-table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid #F1E5DE;
+  color: #0F172A;
+  vertical-align: middle;
+}
+
+.merchant-audit-table tr:last-child td {
+  border-bottom: none;
+}
+
+.merchant-audit-table tr:hover td {
+  background: #FAF6F2;
+}
+
+.log-id-cell {
+  font-weight: 800;
+  color: #64748B;
+}
+
+.time-cell {
+  font-size: 0.8rem;
+  color: #64748B;
+  font-weight: 600;
+}
+
+.session-code {
+  background: #F1F5F9;
+  color: #334155;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-family: monospace;
+}
+
+/* Strategy Badges */
+.strat-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+}
+
+.strat-upsell { background: rgba(139, 92, 246, 0.15); color: #7C3AED; }
+.strat-cross { background: rgba(14, 165, 233, 0.15); color: #0284C7; }
+.strat-bundle { background: rgba(16, 185, 129, 0.15); color: #059669; }
+.strat-deadstock { background: rgba(245, 158, 11, 0.15); color: #D97706; }
+.strat-default { background: #E2E8F0; color: #475569; }
+
+/* Status Badges */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+.status-accepted { background: rgba(16, 185, 129, 0.15); color: #10B981; }
+.status-rejected { background: rgba(244, 63, 94, 0.15); color: #E11D48; }
+.status-expired { background: #E2E8F0; color: #64748B; }
+.status-default { background: rgba(14, 165, 233, 0.15); color: #0284C7; }
+
+.discount-cell {
+  font-weight: 800;
+  color: #10B981;
+}
+
+.impact-cell {
+  font-weight: 900;
+}
+
+.impact-cell.positive { color: #10B981; }
+.impact-cell.neutral { color: #94A3B8; }
+
+.empty-audit-cell {
+  padding: 3rem 1rem !important;
+  text-align: center;
+}
+
+.empty-audit-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}

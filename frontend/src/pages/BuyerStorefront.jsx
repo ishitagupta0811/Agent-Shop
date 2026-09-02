@@ -44,6 +44,22 @@ export default function BuyerStorefront() {
   useEffect(() => {
     loadProducts(selectedCategory);
     loadCart();
+
+    let channel;
+    try {
+      channel = new BroadcastChannel('agentshop_sync');
+      channel.onmessage = () => {
+        loadCart();
+      };
+    } catch (e) {}
+
+    const handleFocus = () => loadCart();
+    window.addEventListener('focus', handleFocus);
+
+    return () => {
+      if (channel) channel.close();
+      window.removeEventListener('focus', handleFocus);
+    };
   }, [selectedCategory]);
 
   const loadProducts = async (cat) => {
@@ -91,41 +107,54 @@ export default function BuyerStorefront() {
 
   const handleQuickAdd = async (product) => {
     try {
-      await api.addToCart(product.id, 1);
+      const res = await api.addToCart(product.id, 1);
+      if (res && (res.items || res.total_items !== undefined)) {
+        setCart(res);
+      }
       await loadCart();
       await loadProducts(selectedCategory);
       broadcastSync();
-      // Stay on page so buyer continues shopping!
     } catch (err) {
       console.error('Failed to quick add:', err);
     }
   };
 
-  const handleAddToCartModal = async (productId, quantity) => {
+  const handleAddToCartModal = async (productId, quantity = 1) => {
     try {
-      await api.addToCart(productId, quantity);
+      const res = await api.addToCart(productId, quantity);
+      if (res && (res.items || res.total_items !== undefined)) {
+        setCart(res);
+      }
       await loadCart();
       await loadProducts(selectedCategory);
       broadcastSync();
-      setSelectedProduct(null);
-      // Stay on page so buyer continues shopping!
+      // Keep modal open briefly or let user close when ready
     } catch (err) {
       console.error('Failed to add from modal:', err);
     }
   };
 
-  const handleAcceptRecommendation = async (recId, currentProductId) => {
+  const handleAcceptRecommendation = async (recId, currentProductId, isCrossSell = false) => {
     try {
-      if (currentProductId) {
-        await api.addToCart(currentProductId, 1);
+      let latestCart = null;
+      if (isCrossSell && currentProductId) {
+        latestCart = await api.addToCart(currentProductId, 1, false, null);
       }
-      await api.acceptRecommendation(recId);
+      if (recId) {
+        const acceptRes = await api.acceptRecommendation(recId);
+        if (acceptRes && acceptRes.cart) {
+          latestCart = acceptRes.cart;
+        }
+      }
+      if (latestCart && (latestCart.items || latestCart.total_items !== undefined)) {
+        setCart(latestCart);
+      }
       setRecommendation(null);
       setSelectedProduct(null);
+      setActiveRecId(null);
       await loadCart();
       await loadProducts(selectedCategory);
       broadcastSync();
-      // Stay on page so buyer continues shopping!
     } catch (err) {
       console.error('Failed to accept recommendation:', err);
     }

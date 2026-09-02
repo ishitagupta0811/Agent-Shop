@@ -10,10 +10,26 @@ export default function ShoppingBagPage() {
   const [pincode, setPincode] = useState('');
   const [pincodeMsg, setPincodeMsg] = useState('');
   const [checkoutOrder, setCheckoutOrder] = useState(null);
-  const [selectedDonation, setSelectedDonation] = useState(10);
+  
 
   useEffect(() => {
     loadCart();
+
+    let channel;
+    try {
+      channel = new BroadcastChannel('agentshop_sync');
+      channel.onmessage = () => {
+        loadCart();
+      };
+    } catch (e) {}
+
+    const handleFocus = () => loadCart();
+    window.addEventListener('focus', handleFocus);
+
+    return () => {
+      if (channel) channel.close();
+      window.removeEventListener('focus', handleFocus);
+    };
   }, []);
 
   const [productsList, setProductsList] = useState([]);
@@ -98,11 +114,11 @@ export default function ShoppingBagPage() {
   const items = cart.items || [];
   const subtotal = cart.total_amount || 0;
   const totalItems = cart.total_items || 0;
-  const platformFee = items.length > 0 ? 23 : 0;
-  const couponDiscount = items.length > 0 ? 120 : 0;
-  const totalMRP = Math.round(subtotal * 1.5) + couponDiscount;
-  const discountOnMRP = totalMRP - subtotal - couponDiscount;
-  const finalTotal = Math.max(0, subtotal - couponDiscount + platformFee + (selectedDonation || 0));
+  const platformFee = 0;
+  const couponDiscount = 0;
+  const discountOnMRP = 0;
+  const totalMRP = subtotal;
+  const finalTotal = subtotal;
 
   return (
     <div style={{ minHeight: '100vh', background: '#FAF6F2', color: '#0F172A' }}>
@@ -165,7 +181,7 @@ export default function ShoppingBagPage() {
               {/* Items Selected Header */}
               <div className="items-selected-bar">
                 <div style={{ fontWeight: 800, fontSize: '0.9rem', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <Check size={16} style={{ color: '#FF3E6C' }} /> {totalItems}/{totalItems} ITEMS SELECTED
+                  <Check size={16} style={{ color: '#FF3E6C' }} /> {items.length}/{items.length} ITEMS SELECTED
                 </div>
                 <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#64748B' }}>
                   <span style={{ cursor: 'pointer', marginRight: '1rem' }} onClick={() => items.forEach(i => handleRemoveItem(i.product_id))}>REMOVE ALL</span>
@@ -274,44 +290,16 @@ export default function ShoppingBagPage() {
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <Tag size={18} style={{ color: '#FF3E6C' }} />
                     <div>
-                      <div style={{ fontWeight: 800, fontSize: '0.85rem', color: '#0F172A' }}>1 Coupon applied</div>
-                      <div style={{ fontSize: '0.75rem', color: '#10B981', fontWeight: 600 }}>You saved additional ₹120</div>
+                      <div style={{ fontWeight: 800, fontSize: '0.85rem', color: '#0F172A' }}>0 Coupons applied</div>
                     </div>
                   </div>
                   <button style={{ border: '1px solid #FF3E6C', background: 'transparent', color: '#FF3E6C', fontWeight: 800, padding: '4px 12px', borderRadius: '4px', fontSize: '0.75rem', cursor: 'pointer' }}>
-                    EDIT
+                    APPLY
                   </button>
                 </div>
               </div>
 
-              {/* Donation Box */}
-              <div className="bag-summary-box" style={{ marginTop: '1rem' }}>
-                <div style={{ fontSize: '0.82rem', fontWeight: 800, color: '#0F172A', marginBottom: '0.5rem' }}>
-                  SUPPORT TRANSFORMATIVE SOCIAL WORK IN INDIA
-                </div>
-                <div style={{ fontSize: '0.78rem', color: '#64748B', marginBottom: '0.6rem' }}>Donate and make a difference</div>
-                <div style={{ display: 'flex', gap: '8px' }}>
-                  {[10, 20, 50, 100].map(val => (
-                    <button
-                      key={val}
-                      onClick={() => setSelectedDonation(selectedDonation === val ? 0 : val)}
-                      style={{
-                        flex: 1,
-                        padding: '6px',
-                        borderRadius: '9999px',
-                        border: selectedDonation === val ? '2px solid #FF3E6C' : '1px solid #CBD5E1',
-                        background: selectedDonation === val ? 'rgba(255, 62, 108, 0.1)' : '#FFFFFF',
-                        color: selectedDonation === val ? '#FF3E6C' : '#0F172A',
-                        fontWeight: 800,
-                        fontSize: '0.8rem',
-                        cursor: 'pointer'
-                      }}
-                    >
-                      ₹{val}
-                    </button>
-                  ))}
-                </div>
-              </div>
+
 
               {/* Price Details */}
               <div className="bag-summary-box" style={{ marginTop: '1rem' }}>
@@ -322,17 +310,17 @@ export default function ShoppingBagPage() {
                   <span>Total MRP</span>
                   <span>₹{totalMRP.toLocaleString('en-IN')}</span>
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', fontSize: '0.85rem', color: '#10B981', fontWeight: 700 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', fontSize: '0.85rem', color: '#64748B', fontWeight: 600 }}>
                   <span>Discount on MRP</span>
-                  <span>-₹{discountOnMRP.toLocaleString('en-IN')}</span>
+                  <span>₹0</span>
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', fontSize: '0.85rem', color: '#10B981', fontWeight: 700 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', fontSize: '0.85rem', color: '#64748B', fontWeight: 600 }}>
                   <span>Coupon Discount</span>
-                  <span>-₹{couponDiscount}</span>
+                  <span>₹0</span>
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', fontSize: '0.85rem', color: '#475569' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', fontSize: '0.85rem', color: '#64748B', fontWeight: 600 }}>
                   <span>Platform Fee</span>
-                  <span>₹{platformFee}</span>
+                  <span>₹0</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', fontSize: '0.85rem', color: '#10B981', fontWeight: 700 }}>
                   <span>Shipping Fee</span>

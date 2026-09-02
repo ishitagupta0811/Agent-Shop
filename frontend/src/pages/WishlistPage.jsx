@@ -29,9 +29,11 @@ export default function WishlistPage() {
   const handleMoveToBag = async (product, e) => {
     if (e) e.stopPropagation();
     try {
-      await api.addToCart(product.id, 1);
+      const res = await api.addToCart(product.id, 1, true, 'WISHLIST_CONVERSION');
       handleRemove(product.id);
-      // Stay on page / update cart silently so user continues shopping
+      if (res) setCart(res);
+      await loadCart();
+      broadcastSync();
     } catch (err) {
       console.error('Failed to move to bag:', err);
     }
@@ -146,6 +148,7 @@ export default function WishlistPage() {
       {/* Product Detail Modal with DropGenius AI Recommendations */}
       {selectedProduct && (
         <ProductDetailModal
+          activeRecId={activeRecId}
           product={selectedProduct}
           onClose={() => setSelectedProduct(null)}
           onAddToCart={handleAddToCartModal}
